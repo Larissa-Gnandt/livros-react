@@ -1,8 +1,7 @@
-import Livro from "../modelo/Livro";
+// ControleLivros.js
 
-export class ControleLivro {
-  private livros: Array<Livro>;
-
+// Remova a importação, pois você está definindo a classe neste arquivo.
+class ControleLivro {
   constructor() {
     // Inicializando o array de livros com três exemplos
     this.livros = [
@@ -30,17 +29,17 @@ export class ControleLivro {
     ];
   }
 
-  obterLivros(): Array<Livro> {
+  obterLivros() {
     return this.livros;
   }
 
-  incluir(novoLivro: Livro): void {
+  incluir(novoLivro) {
     const maiorCodigo = Math.max(...this.livros.map((livro) => livro.codigo));
     novoLivro.codigo = maiorCodigo + 1;
     this.livros.push(novoLivro);
   }
 
-  excluir(codigo: number): void {
+  excluir(codigo) {
     const indice = this.livros.findIndex((livro) => livro.codigo === codigo);
     if (indice !== -1) {
       this.livros.splice(indice, 1);
@@ -56,7 +55,6 @@ console.log("Livros:", controleLivro.obterLivros());
 
 // Incluir um novo livro
 controleLivro.incluir({
-  codigo: 4,
   codEditora: 1,
   titulo: "Livro D",
   resumo: "Resumo do Livro D",
@@ -68,4 +66,5 @@ console.log("Livros após inclusão:", controleLivro.obterLivros());
 controleLivro.excluir(2);
 console.log("Livros após exclusão:", controleLivro.obterLivros());
 
+// Exporte a classe se precisar usá-la em outros arquivos
 export default ControleLivro;
