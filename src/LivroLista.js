@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ControleLivro from "./controle/ControleLivros"; // Importar controlador de livros
 import ControleEditora from "./controle/ControleEditora"; // Importar controlador de editoras
 
