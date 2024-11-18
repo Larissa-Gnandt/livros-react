@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-import ControleLivro from "./controle/ControleLivros"; // Importar controlador de livros
-import ControleEditora from "./controle/ControleEditora"; // Importar controlador de editoras
+import ControleLivro from "./controle/ControleLivros"; 
+import ControleEditora from "./controle/ControleEditora"; 
+import React from "react";
 
 const controleLivro = new ControleLivro();
 const controleEditora = new ControleEditora();
 
 const LinhaLivro = (props) => {
   const { livro, excluir } = props;
+
+  
   const nomeEditora = controleEditora.getNomeEditora(livro.codEditora);
 
   return (
@@ -32,19 +35,34 @@ const LivroLista = () => {
   const [livros, setLivros] = useState([]);
   const [carregado, setCarregado] = useState(false);
 
-  // Hook useEffect para carregar os livros
   useEffect(() => {
     if (!carregado) {
-      const livrosObtidos = controleLivro.obterLivros();
-      setLivros(livrosObtidos);
-      setCarregado(true);
+      //console.log(controleLivro);
+      
+
+      controleLivro
+        .obterLivros()  
+        .then((livrosObtidos) => {
+        //  console.log(livrosObtidos);
+          
+          setLivros(livrosObtidos);
+          setCarregado(true);
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar livros:", error);
+        });
     }
   }, [carregado]);
 
-  // Método para excluir livro
   const excluir = (codigo) => {
-    controleLivro.excluir(codigo);
-    setCarregado(false); // Forçar o redesenho da página
+    controleLivro
+      .excluir(codigo) 
+      .then(() => {
+        setCarregado(false); 
+      })
+      .catch((error) => {
+        console.error("Erro ao excluir livro:", error);
+      });
   };
 
   return (
@@ -60,8 +78,13 @@ const LivroLista = () => {
           </tr>
         </thead>
         <tbody>
-          {livros.map((livro) => (
-            <LinhaLivro key={livro.codigo} livro={livro} excluir={excluir} />
+          {livros.map((livro, index) => (
+            <LinhaLivro
+              key={index}  
+              livro={livro}
+              excluir={excluir}
+              index={index} 
+            />
           ))}
         </tbody>
       </table>

@@ -1,71 +1,86 @@
 import Livro from "../modelo/Livro";
 
+const baseURL = "http://localhost:3030/livros";
+
+interface LivroMongo {
+  _id?: string | null;
+  codEditora: number;
+  titulo: string;
+  resumo: string;
+  autorres: string[];
+}
+
 export class ControleLivro {
-  private livros: Array<Livro>;
 
-  constructor() {
-    // Inicializando o array de livros com três exemplos
-    this.livros = [
-      {
-        codigo: 1,
-        codEditora: 1,
-        titulo: "Livro A",
-        resumo: "Resumo do Livro A",
-        autores: ["Autor A"],
-      },
-      {
-        codigo: 2,
-        codEditora: 2,
-        titulo: "Livro B",
-        resumo: "Resumo do Livro B",
-        autores: ["Autor B"],
-      },
-      {
-        codigo: 3,
-        codEditora: 3,
-        titulo: "Livro C",
-        resumo: "Resumo do Livro C",
-        autores: ["Autor C"],
-      },
-    ];
-  }
+  constructor() {}
+  
+  async obterLivros(): Promise<Livro[]> {
+    try {
+      const response = await fetch(baseURL);
+      if (!response.ok) {
+        throw new Error("Falha ao obter livros");
+      }
+      const livros: LivroMongo[] = await response.json();
 
-  obterLivros(): Array<Livro> {
-    return this.livros;
-  }
-
-  incluir(novoLivro: Livro): void {
-    const maiorCodigo = Math.max(...this.livros.map((livro) => livro.codigo));
-    novoLivro.codigo = maiorCodigo + 1;
-    this.livros.push(novoLivro);
-  }
-
-  excluir(codigo: number): void {
-    const indice = this.livros.findIndex((livro) => livro.codigo === codigo);
-    if (indice !== -1) {
-      this.livros.splice(indice, 1);
+      return livros.map((livro) => {
+        return new Livro(
+          livro._id!,
+          livro.codEditora,
+          livro.titulo,
+          livro.resumo,
+          livro.autorres
+        );
+      });
+      } catch (error: any) {
+        throw new Error(`Erro ao obter livros: ${error.message}`);
+      }
     }
+
+ async incluir(novoLivro: Livro): Promise<boolean> {
+  try {
+    const livroMongo: LivroMongo = {
+      codEditora: novoLivro.codEditora,
+      titulo: novoLivro.titulo,
+      resumo: novoLivro.resumo,
+      autorres: novoLivro.autores,
+    };
+    const response = await fetch(baseURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(livroMongo),
+    });
+
+    const result = await response.json();
+
+    if (result.ok) {
+      return true;
+    } else {
+      throw new Error("Falha ao incluir livro");
+    }
+  } catch (error: any) {
+    throw new Error(`Erro ao incluir livro: ${error.message}`);
   }
 }
 
-// Exemplo de uso da classe
-const controleLivro = new ControleLivro();
+  async excluir(codigo: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${baseURL}/${codigo}`, {
+        method: "DELETE",
+      });
 
-// Obter todos os livros
-console.log("Livros:", controleLivro.obterLivros());
+      const result = await response.json();
 
-// Incluir um novo livro
-controleLivro.incluir({
-  codigo: 4,
-  codEditora: 1,
-  titulo: "Livro D",
-  resumo: "Resumo do Livro D",
-  autores: ["Autor D"],
-});
-console.log("Livros após inclusão:", controleLivro.obterLivros());
-
-// Excluir um livro pelo código
-controleLivro.excluir(2);
-console.log("Livros após exclusão:", controleLivro.obterLivros());
+      if (result.ok) {
+        return true;
+      } else {
+        throw new Error("Falha ao excluir livro");
+      }
+    } catch (error: any) {
+      throw new Error(`Erro ao excluir livro: ${error.message}`);
+    }
+  }
+}
 
 export default ControleLivro;
